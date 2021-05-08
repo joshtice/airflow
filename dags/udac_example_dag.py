@@ -16,21 +16,27 @@ default_args = {
     'owner': 'udacity',
     'retries': 3,
     'retry_delay': timedelta(minutes=5),
-    'start_date': datetime(2019, 1, 12),
+    'start_date': datetime.now()
 }
 
 dag = DAG('udac_example_dag',
           default_args=default_args,
           description='Load and transform data in Redshift with Airflow',
-          schedule_interval='0 * * * *'
+          schedule_interval='@daily'
         )
 
 start_operator = DummyOperator(task_id='Begin_execution',  dag=dag)
 
-# stage_events_to_redshift = StageToRedshiftOperator(
-#     task_id='Stage_events',
-#     dag=dag
-# )
+stage_events_to_redshift = StageToRedshiftOperator(
+    task_id='stage_events',
+    aws_conn_id='aws_conn_id',
+    redshift_conn_id='redshift_conn_id',
+    iam_role="arn:aws:iam::850743350707:role/udacity-redshift-role",
+    s3_bucket='udacity-dend',
+    s3_key='log-data',
+    table='staging_events',
+    dag=dag
+)
 
 # stage_songs_to_redshift = StageToRedshiftOperator(
 #     task_id='Stage_songs',
@@ -67,4 +73,6 @@ start_operator = DummyOperator(task_id='Begin_execution',  dag=dag)
 #     dag=dag
 # )
 
-# end_operator = DummyOperator(task_id='Stop_execution',  dag=dag)
+end_operator = DummyOperator(task_id='Stop_execution',  dag=dag)
+
+start_operator >> stage_events_to_redshift >> end_operator
