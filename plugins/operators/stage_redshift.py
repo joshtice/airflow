@@ -17,9 +17,7 @@ class StageToRedshiftOperator(BaseOperator):
                  iam_role="",
                  s3_bucket="",
                  s3_key="",
-                 delimiter=",",
                  table="",
-                 ignore_headers=1,
                  *args, **kwargs):
 
         super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
@@ -31,9 +29,7 @@ class StageToRedshiftOperator(BaseOperator):
         self.iam_role = iam_role
         self.s3_bucket = s3_bucket
         self.s3_key = s3_key
-        self.delimiter = delimiter
         self.table = table
-        self.ignore_headers = ignore_headers
         
 
     def execute(self, context):
